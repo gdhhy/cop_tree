@@ -118,7 +118,7 @@
 
             myTable.on('draw', function () {
                 $('#dynamic-table tr').find('.showMemberInfo').click(function () {
-                    var url = "/memberInfo.jspx?memberNo={0}".format($(this).text());
+                    var url = "/memberInfo2.jspx?memberNo={0}".format($(this).text());
                     window.open(encodeURI(encodeURI(url)), "_blank");
                 });
 

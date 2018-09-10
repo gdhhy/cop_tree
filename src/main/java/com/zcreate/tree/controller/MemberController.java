@@ -76,37 +76,22 @@ public class MemberController {
         Map<String, Object> param = new HashMap<>();
         param.put("parentNo", memberNo);
         List<Member> members = memberMapper.selectMember(param);
-        /*
-         * $item = array(
-         * 				'text' => $row['text'] ,
-         * 				'type' => $row['child_count'] > 0 ? 'folder' : 'item',
-         * 				'additionalParameters' =>  array('id' => $row['id'])
-         * 			);
-         * 			if($row['child_count'] > 0)
-         * 				 $item['additionalParameters']['children'] = true;
-         * 			else {
-         * 				  //we randomly make some items pre-selected for demonstration only
-         * 				  //in your app you can set $item['additionalParameters']['item-selected'] = true
-         * 				  //for those items that have been previously selected and saved and you want to show them to user again
-         * 				if(mt_rand(0, 3) == 0)
-         * 					$item['additionalParameters']['item-selected'] = true;
-         *                        }
-         *
-         * 			$data[$row['id']] = $item;
-         */
 
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> obj = new HashMap<>();
         //List<Map<String, Object>> oj = new List<HashMap<>>();
         for (Member member : members) {
             Map<String, Object> item = new HashMap<>();
+            String baseText = "层级:" + member.getLevel() + "，" + ("".equals(member.getRealName()) ? member.getMemberNo() : member.getRealName()) + "，手机：" + member.getPhone();
             if (member.getDirectCount() > 0) {
-                item.put("text", member.getRealName() + "，下级深度：" + member.getChildDepth() + "，下级总数：" + member.getChildTotal());
+                baseText += "，下级深度：" + member.getChildDepth() + "，下级总数：" + member.getChildTotal();
                 item.put("type", "folder");
             } else {
-                item.put("text", member.getRealName());
+                baseText = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class='ace-icon fa fa-user'></i>&nbsp;" + baseText;
                 item.put("type", "item");
             }
+
+            item.put("text", baseText);
 
             Map<String, Object> addParam = new HashMap<>();
             addParam.put("children", member.getDirectCount() > 0 ? true : null);
