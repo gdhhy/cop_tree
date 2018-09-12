@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>传销查询系统</title>
+    <title>云之道传销查询系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- bootstrap & fontawesome -->
@@ -180,7 +180,7 @@
                                 let col2 = $table.find("thead tr th:contains('卡号')").index();
 
                                 $table.find("tbody tr").each(function (index,element){
-                                    $(element).find("td").eq(col1).html("<a href='memberWithdraw.jsp?bankcard={0}' target='_blank'>{1}</a>"
+                                    $(element).find("td").eq(col1).html("<a href='memberWithdraw.jsp?bankcard={0}&memberNo=<c:out value="${member.memberNo}"/>' target='_blank'>{1}</a>"
                                         .format($(element).find("td").eq(col2).text(),$(element).find("td").eq(col1).text()));
                                 });
                             }

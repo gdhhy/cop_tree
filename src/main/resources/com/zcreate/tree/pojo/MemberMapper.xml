@@ -82,7 +82,7 @@
                 limit #{param.length:INTEGER}
             </when>
             <otherwise>
-                limit 1000
+                limit 100000
             </otherwise>
         </choose>
     </select>

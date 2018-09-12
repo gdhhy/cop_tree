@@ -160,7 +160,7 @@
                     "serverSide": true,
                     select: {style: 'single'}
                 });
-            myTable.on('order.dt search.dt', function () {
+            myTable.on('order.dt search.dt draw.dt', function () {
                 myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
                     cell.innerHTML = i + 1;
                 });
