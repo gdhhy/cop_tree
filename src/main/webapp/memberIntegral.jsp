@@ -140,7 +140,7 @@
                         {"orderable": false, className: 'text-center', 'targets': 5}
 
                     ],
-                    "aLengthMenu": [[20, 100, -1], ["20", "100", "全部"]],//二组数组，第一组数量，第二组说明文字;
+                    "aLengthMenu": [[20, 100, 1000,-1], ["20", "100","1000", "全部"]],//二组数组，第一组数量，第二组说明文字;
                     "aaSorting": [],//"aaSorting": [[ 4, "desc" ]],//设置第5个元素为默认排序
                     language: {
                         url: '/js/datatables/datatables.chinese.json'

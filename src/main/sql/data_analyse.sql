@@ -212,12 +212,11 @@ set A.member_info=json_set(A.member_info,'$."基本信息"."联盟类型"',B.`li
 
 update member A   join
 (SELECT
-        A.member_no,
+        A.id,
         CASE
-            ifnull( a.rule_id, "" ) 					WHEN 1 THEN					"免费合伙人" 					WHEN 2 THEN
+            a.vip_level+1  					WHEN 1 THEN					"免费合伙人" 					WHEN 2 THEN
             "创业合伙人" 					WHEN 3 THEN
             "核心创业合伙人" 					WHEN 4 THEN					"创投合伙人"
-                                             WHEN 5 THEN					"核心创投合伙人" 	 else ''			END "level"
+                                     WHEN 5 THEN					"核心创投合伙人" 	 else ''			END "level"
  from
-      ( SELECT DISTINCT uid, rule_id FROM user_level_order) a ,member A
- where   A.member_no =a.uid) B on A.member_no=B.member_no  set A.member_info=json_set(A.member_info,'$."基本信息"."合伙人级别"',B.level) ;
+      user  a) B on A.member_no=B.id  set A.member_info=json_set(A.member_info,'$."基本信息"."合伙人级别"',B.level) ;
