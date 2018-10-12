@@ -58,7 +58,11 @@
             function showMemberInfo(memberNo) {
                 $.getJSON("/listMember.jspx?memberNo=" + memberNo, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                     if (result.data.length > 0) {
-                        $('#realName').text(result.data[0].realName);//",电话号码：" + result.data[0].phone);
+                        let showCardNo = $('input[name="bankcard"]').val();
+                        if (showCardNo === '')
+                            $('#realName').text(result.data[0].realName);
+                        else
+                            $('#realName').text(result.data[0].realName + '，银行卡：' + showCardNo);
                     }
                 });
             }
