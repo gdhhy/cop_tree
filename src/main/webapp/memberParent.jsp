@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>云联惠传销查询系统 - 会员记录</title>
+    <title>上级关系 - ${short_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- bootstrap & fontawesome -->
@@ -52,6 +52,8 @@
             var memberNo = $.getUrlParam("memberNo");
             var realName = decodeURI($.getUrlParam("realName"));
             $('#realName').text(realName);
+            if (realName !== '')
+                $(document).attr("title", realName + ' - ' + $(document).attr("title"));//修改title值
             var url = "/getParent.jspx?maxlevel=200&memberNo=" + memberNo;
 
             var myTable = $('#dynamic-table')
@@ -91,7 +93,7 @@
                                     '</div>';
                             }
                         }, {
-                            "orderable": false, 'searchable': false, 'targets': 7,title:'提现流水',
+                            "orderable": false, 'searchable': false, 'targets': 7, title: '提现流水',
                             render: function (data, type, row, meta) {
                                 return '<div class="hidden-sm hidden-xs action-buttons">' +
                                     '<a class="green" href="#" data-memberNo="{0}">'.format(data) +

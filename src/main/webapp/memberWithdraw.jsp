@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>云之道传销查询系统 - 提现记录</title>
+    <title>提现记录 - ${short_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- bootstrap & fontawesome -->
@@ -53,16 +53,20 @@
             var memberNo = $.getUrlParam("memberNo");
             var bankcard = $.getUrlParam("bankcard");
 
+            if (bankcard !== null)
+                $(document).attr("title", '银行卡：' + bankcard + ' - ' + $(document).attr("title"));//修改title值
+
             var url = buildSearchParam(memberNo, bankcard);
 
             function showMemberInfo(memberNo) {
                 $.getJSON("/listMember.jspx?memberNo=" + memberNo, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                     if (result.data.length > 0) {
-                        let showCardNo = $('input[name="bankcard"]').val();
+                        var showCardNo = $('input[name="bankcard"]').val();
                         if (showCardNo === '')
                             $('#realName').text(result.data[0].realName);
                         else
                             $('#realName').text(result.data[0].realName + '，银行卡：' + showCardNo);
+                        $(document).attr("title",   result.data[0].realName + ' - ' + $(document).attr("title"));//修改title值
                     }
                 });
             }
@@ -128,7 +132,7 @@
                     //"serverSide": true,
                     select: {style: 'single'},
                     "footerCallback": function (tfoot, data, start, end, display) {
-                        let total = 0.0;
+                        var total = 0.0;
                         $.each(data, function (index, value) {
                             if (value["status"] === '成功')
                                 total += value["amount"];
@@ -148,7 +152,7 @@
              });*/
             myTable.on('draw', function () {
                 $('#dynamic-table tr').find('.research').click(function () {
-                    var url = "/memberWithdraw.jspx?{0}={1}".format($(this).attr("name"), $(this).text());
+                    var url = "/getWithdraw.jspx?{0}={1}".format($(this).attr("name"), $(this).text());
                     $('.form-search')[0].reset();
                     $('input[name="' + $(this).attr("name") + '"]').val($(this).text());
                     myTable.ajax.url(encodeURI(url)).load();
@@ -211,21 +215,21 @@
             });
 
             function search() {
-                let url = "/memberWithdraw.jspx";
-                let searchParam = "";
+                var url = "/getWithdraw.jspx";
+                var searchParam = "";
                 $('.form-search :text').each(function () {
                     if ($(this).val())
                         searchParam += "&" + $(this).attr("name") + "=" + $(this).val();
                 });
                 if (searchParam !== "") {
-                    url = "/memberWithdraw.jspx?" + searchParam.substr(1);
+                    url = "/getWithdraw.jspx?" + searchParam.substr(1);
                     $('#realName').text('');
                 }
                 myTable.ajax.url(url).load();
             }
 
             function buildSearchParam(memberNo, bankcard) {
-                let searchParam = "";
+                var searchParam = "";
                 if (memberNo !== null) {
                     searchParam += "&memberNo=" + memberNo;
                     $('input[name="memberNo"]').val(memberNo);
@@ -234,7 +238,7 @@
                     searchParam += "&bankcard=" + bankcard;
                     $('input[name="bankcard"]').val(bankcard);
                 }
-                return "/memberWithdraw.jspx?" + searchParam.substr(1);
+                return "/getWithdraw.jspx?" + searchParam.substr(1);
             }
         })
     </script>

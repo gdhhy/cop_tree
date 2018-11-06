@@ -14,20 +14,48 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 
 @RequestMapping("/")
 public class MemberController {
     private static Logger log = LoggerFactory.getLogger(MemberController.class);
+    @Resource
+    private Properties configs;
     @Autowired
     private MemberMapper memberMapper;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
+
+    @RequestMapping(value = "/member", method = RequestMethod.GET)
+    public String member(@RequestParam(value = "searchKey", required = false) String searchKey, ModelMap model) {
+        model.addAttribute("title", configs.getProperty("title"));
+        model.addAttribute("short_title", configs.getProperty("short_title"));
+        return "/member";
+    }
+
+    @RequestMapping(value = "/memberParent", method = RequestMethod.GET)
+    public String memberParent(@RequestParam(value = "searchKey", required = false) String searchKey, ModelMap model) {
+        model.addAttribute("title", configs.getProperty("title"));
+        model.addAttribute("short_title", configs.getProperty("short_title"));
+        return "/memberParent";
+    }
+
+    @RequestMapping(value = "/memberWithdraw", method = RequestMethod.GET)
+    public String memberWithdraw(@RequestParam(value = "searchKey", required = false) String searchKey, ModelMap model) {
+        model.addAttribute("title", configs.getProperty("title"));
+        model.addAttribute("short_title", configs.getProperty("short_title"));
+        return "/memberWithdraw";
+    }
+
+    @RequestMapping(value = "/memberIntegral", method = RequestMethod.GET)
+    public String memberIntegral(@RequestParam(value = "searchKey", required = false) String searchKey, ModelMap model) {
+        model.addAttribute("title", configs.getProperty("title"));
+        model.addAttribute("short_title", configs.getProperty("short_title"));
+        return "/memberIntegral";
+    }
 
     @ResponseBody
     @RequestMapping(value = "/listMember", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -156,12 +184,6 @@ public class MemberController {
         return gson.toJson(purseTypes);
     }
 
-    @RequestMapping(value = "/member", method = RequestMethod.GET)
-    public String member(@RequestParam(value = "searchKey", required = false) String searchKey, ModelMap model) {
-        log.debug("url = member");
-
-        return "/member";
-    }
 
     @RequestMapping(value = "/memberInfo", method = RequestMethod.GET)
     public String memberInfo(@RequestParam(value = "memberNo", required = false) String memberNo, ModelMap model) {
@@ -172,20 +194,21 @@ public class MemberController {
         List<Member> members = memberMapper.selectMember(param);
         if (members.size() >= 1)
             model.addAttribute("member", members.get(0));
-
+        model.addAttribute("title", configs.getProperty("title"));
+        model.addAttribute("short_title", configs.getProperty("short_title"));
 
         return "/memberInfo";
     }
 
     @ResponseBody
-    @RequestMapping(value = "/memberIntegral", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String memberIntegral(@RequestParam(value = "memberNo", required = false) Integer memberNo,
-                                 @RequestParam(value = "purseType", required = false) Integer purseType,
-                                 @RequestParam(value = "purseName", required = false) String purseName,
-                                 @RequestParam(value = "reasonCode", required = false) Integer reasonCode,
-                                 @RequestParam(value = "draw", required = false) Integer draw,
-                                 @RequestParam(value = "start", required = false) Integer start,
-                                 @RequestParam(value = "length", required = false, defaultValue = "100") Integer length) {
+    @RequestMapping(value = "/getIntegral", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getIntegral(@RequestParam(value = "memberNo", required = false) Integer memberNo,
+                              @RequestParam(value = "purseType", required = false) Integer purseType,
+                              @RequestParam(value = "purseName", required = false) String purseName,
+                              @RequestParam(value = "reasonCode", required = false) Integer reasonCode,
+                              @RequestParam(value = "draw", required = false) Integer draw,
+                              @RequestParam(value = "start", required = false) Integer start,
+                              @RequestParam(value = "length", required = false, defaultValue = "100") Integer length) {
         Map<String, Object> param = new HashMap<>();
         param.put("memberNo", memberNo);
         param.put("purseType", purseType);
@@ -206,12 +229,12 @@ public class MemberController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/memberWithdraw", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String memberWithdraw(@RequestParam(value = "memberNo", required = false) String memberNo,
-                                 @RequestParam(value = "bankcard", required = false) String bankcard,
-                                 @RequestParam(value = "draw", required = false) Integer draw,
-                                 @RequestParam(value = "start", required = false) Integer start,
-                                 @RequestParam(value = "length", required = false, defaultValue = "100") Integer length) {
+    @RequestMapping(value = "/getWithdraw", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getWithdraw(@RequestParam(value = "memberNo", required = false) String memberNo,
+                              @RequestParam(value = "bankcard", required = false) String bankcard,
+                              @RequestParam(value = "draw", required = false) Integer draw,
+                              @RequestParam(value = "start", required = false) Integer start,
+                              @RequestParam(value = "length", required = false, defaultValue = "100") Integer length) {
         Map<String, Object> param = new HashMap<>();
         param.put("memberNo", memberNo);
         param.put("bankcard", bankcard);
@@ -239,6 +262,9 @@ public class MemberController {
         List<Member> members = memberMapper.selectMember(param);
         if (members.size() >= 1)
             model.addAttribute("member", members.get(0));
+
+        model.addAttribute("title", configs.getProperty("title"));
+        model.addAttribute("short_title", configs.getProperty("short_title"));
 
 
         return "/memberInfo2";

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>云之道传销查询系统</title>
+    <title>${title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- bootstrap & fontawesome -->
@@ -60,19 +60,24 @@
                         {"data": "parentNo", "sClass": "center"},
                         {"data": "level", "sClass": "center"},
                         {"data": "childTotal", "sClass": "center"},
+
                         {"data": "childDepth", "sClass": "center"},
                         {"data": "directCount", "sClass": "center"},
                         {"data": "secondCount", "sClass": "center"},
                         {"data": "memberNo", "sClass": "center"},
-                        {"data": "memberNo", "sClass": "center"},
-                        {"data": "memberNo", "sClass": "center"}
+                        {"data": "xyd", "sClass": "center"},
+                        {"data": "withdrawMoney", "sClass": "center"}
                     ],
 
                     'columnDefs': [
-                        {"orderable": false, "searchable": false, className: 'text-center', "targets": 0},
+                        {
+                            "orderable": false, "searchable": false, className: 'text-center', "targets": 0, render: function (data, type, row, meta) {
+                                return meta.row + 1 + meta.settings._iDisplayStart;
+                            }
+                        },
                         {
                             "orderable": false, className: 'text-center', "targets": 1, render: function (data, type, row, meta) {
-                                return '<a href="#"  name="memberNo">{0}</a>'.format(data);
+                                return '<a href="#" class="hasDetail" data-Url="/memberInfo.jspx?memberNo={0}">{1}</a>'.format(data, data);
                             }
                         },
                         {"orderable": false, className: 'text-center', "targets": 2},
@@ -80,7 +85,7 @@
                         {
                             "orderable": false, "searchable": false, className: 'text-center', "targets": 4,
                             render: function (data, type, row, meta) {
-                                return '<a href="#" class="research" name="parentNo" data-parentNo="{0}">{1}</a>'.format(data,data);
+                                return '<a href="#" class="research" name="parentNo" data-parentNo="{0}">{1}</a>'.format(data, data);
                             }
                         },
                         {"orderable": false, 'targets': 5, 'searchable': false},
@@ -102,8 +107,8 @@
                             "orderable": false, 'searchable': false, 'targets': 10,
                             render: function (data, type, row, meta) {
                                 return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                    '<a class="green" href="#" data-memberNo="{0}" data-realName="{1}">'.format(data, row["realName"]) +
-                                    '<i class="ace-icon glyphicon glyphicon-arrow-up bigger-130"></i>' +
+                                    '<a class="hasDetail" href="#" data-Url="/memberParent.jspx?memberNo={0}&realName={1}">'.format(data, encodeURI(encodeURI(row["realName"]))) +
+                                    '<i class="ace-icon green glyphicon glyphicon-arrow-up bigger-130"></i>' +
                                     '</a>' +
                                     '</div>';
                             }
@@ -111,21 +116,15 @@
                         {
                             "orderable": false, 'searchable': false, 'targets': 11,
                             render: function (data, type, row, meta) {
-                                return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                    '<a class="green" href="#" data-memberNo="{0}">'.format(data) +
-                                    '<i class="ace-icon  fa fa-film  bigger-130"></i>' +
-                                    '</a>' +
-                                    '</div>';
+                                return data > 0.0001 ? '<a href="#" class="hasDetail" data-Url="/memberIntegral.jspx?memberNo={0}&purseName={1}">{2}</a>'
+                                    .format(row["memberNo"], encodeURI(encodeURI("小云豆")), data) : data;
+
                             }
                         },
                         {
                             "orderable": false, 'searchable': false, 'targets': 12,
                             render: function (data, type, row, meta) {
-                                return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                    '<a class="green" href="#" data-memberNo="{0}">'.format(data) +
-                                    '<i class="ace-icon glyphicon glyphicon-yen  bigger-130"></i>' +
-                                    '</a>' +
-                                    '</div>';
+                                return data > 0.0001 ? '<a href="#" class="hasDetail" data-Url="/memberWithdraw.jspx?memberNo={0}">{1}</a>'.format(row["memberNo"], data) : '';
                             }
                         }
 
@@ -150,40 +149,32 @@
                     "serverSide": true,
                     select: {style: 'single'}
                 });
-            myTable.on('order.dt search.dt', function () {
-                myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
-                    cell.innerHTML = i + 1;
-                });
+            myTable.on('xhr', function (e, settings, json, xhr) {
+                if (json.data.length > 0)
+                    for (var i = 0; i < json.data.length; i++) {
+                        var memberInfo = JSON.parse(json.data[i].memberInfo);
+                        json.data[i].withdrawMoney = memberInfo['资金']['提现金额'];
+                        json.data[i].xyd = memberInfo['钱包']['小云豆'];
+                    }
             });
             myTable.on('draw', function () {
-                $('#dynamic-table tr').find('a:eq(0)').click(function () {
-                    var url = "/memberInfo2.jspx?memberNo={0}".format($(this).text());
-                    window.open(url, "_blank");
-                });
-
-                $('#dynamic-table tr').find('a:eq(4)').click(function () {
-                    var url = "/memberParent.jsp?memberNo={0}&realName={1}".format($(this).attr("data-memberNo"), $(this).attr("data-realName"));
-                    window.open(encodeURI(encodeURI(url)), "_blank");
-                });
-                $('#dynamic-table tr').find('a:eq(5)').click(function () {
-                    var url = "/memberIntegral.jsp?memberNo={0}".format($(this).attr("data-memberNo"));
-                    window.open(url, "_blank");
-                });
-                $('#dynamic-table tr').find('a:eq(6)').click(function () {
-                    var url = "/memberWithdraw.jsp?memberNo={0}".format($(this).attr("data-memberNo"));
-                    window.open(url, "_blank");
-                });
                 $('#dynamic-table tr').find('.research').click(function () {
-                    var url = "/listMember.jspx?{0}={1}".format($(this).attr("name"), $(this).attr("data-parentNo"));
+                    url = "/listMember.jspx?{0}={1}".format($(this).attr("name"), $(this).attr("data-parentNo"));
                     $('.form-search')[0].reset();
-                    $('input[name="parentNo"]').val( $(this).attr("data-parentNo"));
+                    $('input[name="parentNo"]').val($(this).attr("data-parentNo"));
                     myTable.ajax.url(encodeURI(url)).load();
-                    if($(this).attr("name")==='parentNo')
-                        $('#resultName').text( $(this).attr("data-parentNo")+"的直接下级");
+                    if ($(this).attr("name") === 'parentNo2')
+                        $('#resultName').text($(this).attr("data-parentNo") + " 的二级下级");
                     else
-                        $('#resultName').text( $(this).attr("data-parentNo")+"的二层下级");
-
+                        $('#resultName').text($(this).attr("data-parentNo") + " 的直接下级");
                 });
+                $('#dynamic-table tr').find('.hasDetail').click(function () {
+                    window.open($(this).attr("data-Url"), "_blank");
+                });
+                /* $('#dynamic-table tr').find('a:eq(5)').click(function () {
+                     var url = "/memberIntegral.jsp?memberNo={0}".format($(this).attr("data-memberNo"));
+                     window.open(url, "_blank");
+                 });*/
             });
             $('.btn-success').click(function () {
                 search();
@@ -304,7 +295,7 @@
 
                             <div class="col-xs-12">
                                 <div class="table-header">
-                                   <span id="resultName"></span> 成员列表
+                                    <span id="resultName"></span> 成员列表
                                     <div class="pull-right tableTools-container"></div>
                                 </div>
                                 <!-- div.table-responsive -->
@@ -325,7 +316,7 @@
                                             <th>直接下级数</th>
                                             <th>二层下级数</th>
                                             <th>查看上线</th>
-                                            <th>钱包流水</th>
+                                            <th>小云豆</th>
                                             <th>提现流水</th>
                                         </tr>
                                         </thead>

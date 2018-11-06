@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>云之道传销查询系统 - 成员信息</title>
+    <title><c:out value="${member.realName}"/> - 成员信息 - ${short_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- bootstrap & fontawesome -->
@@ -82,8 +82,8 @@
                     dataFilter: filter*/
                 },
                 callback: {
-                    onClick: zTreeOnClick
-                    , beforeAsync: beforeAsync,
+                    /*onClick: zTreeOnClick
+                    ,*/ beforeAsync: beforeAsync,
                     onAsyncSuccess: onAsyncSuccess
                 }
             };
@@ -176,12 +176,11 @@
                 '{1}' +
                 '</div>' +
                 '</div>';
-            showMemberInfo(<c:out value="${member.memberNo}"/>);
 
-            function zTreeOnClick(event, treeId, treeNode) {
-                //alert(treeNode.id + ", " + treeNode.name);
-                showMemberInfo(treeNode.id);
-            }
+            /* function zTreeOnClick(event, treeId, treeNode) {
+                 //alert(treeNode.id + ", " + treeNode.name);
+                 showMemberInfo(treeNode.id);
+             }*/
 
             function showDivObject(propName, obj) {
                 var keyVals = [];
@@ -210,8 +209,8 @@
                 var th = "";
                 var td = "";
                 for (var i = 0; i < obj.length; i++) {
-                    let row_td = "";
-                    let row_th = "";
+                    var row_td = "";
+                    var row_th = "";
                     $.each(obj[i], function (key, val) {
                         if (i === 0)
                             row_th += "<th>{0}</th>".format(key);
@@ -226,85 +225,74 @@
                 return divObject.format(propName, html);
             }
 
-            function showMemberInfo(memberNo) {
-                $.getJSON("/listMember.jspx?memberNo=" + memberNo, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
-                    if (result.data.length > 0) {
-                        var memberInfo = JSON.parse(result.data[0].memberInfo);
-                        var html = "";
-                        html += row2.format("用户名：", result.data[0].realName, "上级ID：", result.data[0].parentNo);
-                        html += row2.format("用户ID ：", result.data[0].memberNo, "手机号码：", result.data[0].phone);
+            var infoString = '<c:out value="${member.memberInfo}" escapeXml="false"/>';
 
-                        html += row2.format("当前层级：", result.data[0].level, "下级深度：", result.data[0].childDepth);
-                        html += row2.format("全部下级数：", result.data[0].childTotal, " 直接下级数：", result.data[0].directCount);
+            showMemberInfo();
 
-                        html += row2.format("二层下级数：", result.data[0].secondCount, '', '');
+            function showMemberInfo() {
+                if (infoString !== '') {
+                    var memberInfo = JSON.parse(infoString);
+                    var baseInfo = {
+                        "用户名": '<c:out value="${member.realName}"/>', "手机号码": '<c:out value="${member.phone}"/>',
+                        "注册时间": memberInfo["基本信息"]["注册时间"],"上级ID": '<c:out value="${member.parentNo}"/>',
+                        "当前层级": '<c:out value="${member.level}"/>', "下级深度": '<c:out value="${member.childDepth}"/>',
+                        "全部下级数": '<c:out value="${member.childTotal}"/>', "直接下级数": '<c:out value="${member.directCount}"/>',
+                        "二层下级数": '<c:out value="${member.secondCount}"/>'
+                    };
+                    html = showDivObject("层级信息", baseInfo);
+                    $('#baseInfo').html(html);
 
-                        $('#baseInfo').html(html);
 
+                    //html = showDivObject("基本信息", memberInfo["基本信息"]);
+                    html = showDivObject("资金", memberInfo["资金"]);
+                    html += showDivObject("钱包", memberInfo["钱包"]);
+                    html += showTable("提现银行卡", memberInfo["提现银行卡"]);
+                    html += showTable("登记银行卡", memberInfo["登记银行卡"]);
+                    $('#aaa').html(html);
 
-                        if (memberInfo) {
-                            var html = "";
-                            $.each(memberInfo, function (key, val) {
-                                /*console.log(key + "1:" + (val instanceof Array));
-                                console.log(key + "2:" + (val instanceof String));
-                                console.log(key + "2:" + (typeof (val)));
-                                console.log(key + "3:" + (val instanceof Object));
-                                if(key==='提现银行卡') console.log(val);*/
-                                var objType = typeof (val);
-                                if (val instanceof Array) html += showTable(key, val);
-                                /* else if (objType==="string") {
-                                     var obj = JSON.parse(val);
-                                     //console.log("obj typeof:"+typeof(obj));
-                                     html += showDivArray(key, obj);
-                                 }*/
-                                else if (objType === "object") html += showDivObject(key, val);
-                            });
-                            $('#aaa').html(html);
+                    /*对含ID的，增加连接*/
+                    $('#baseInfo').find(".profile-info-row").each(function () {
+                        if ($(this).find('.profile-info-name:eq(0)').text().indexOf("ID") > 0) {
+                            var valueElement = $(this).find('.profile-info-value:eq(0)');
 
-                            let $table = $('#aaa').find("table:contains('提现金额')");
-                            if ($table.length > 0) {
-                                let col1 = $table.find("thead tr th:contains('提现金额')").index();
-                                let col2 = $table.find("thead tr th:contains('卡号')").index();
-
-                                $table.find("tbody tr").each(function (index,element){
-                                    $(element).find("td").eq(col1).html("<a href='memberWithdraw.jsp?bankcard={0}' target='_blank'>{1}</a>"
-                                        .format($(element).find("td").eq(col2).text(),$(element).find("td").eq(col1).text()));
-                                });
-                            }
-
-                            let $div = $('#aaa').find("div.profile-user-info:contains('钱包')");
-                            //console.log('div length:' + $div.length);
-                            if ($div.length > 0) {
-                                let purse_len = $div.find(".profile-info-value").length;
-                                for (let k = 0; k < purse_len; k++)
-                                    if ($div.find(".profile-info-value").eq(k).text() > 0) {
-                                        //console.log($div.find(".profile-info-value").eq(k).text());
-                                        $div.find(".profile-info-value").eq(k).html("<a href='memberIntegral.jsp?memberNo={0}&purseName={1}' target='_blank'>{2}</a>"
-                                            .format(<c:out value="${member.memberNo}"/>,
-                                                encodeURI(encodeURI($div.find(".profile-info-name").eq(k).text())),
-                                                $div.find(".profile-info-value").eq(k).text()));
-                                    }
-
-                            }
+                            valueElement.html("<a href='memberInfo.jspx?memberNo={0}'>{1}</a>".format(valueElement.text(), valueElement.text()));
                         }
+                        if ($(this).find('.profile-info-name:eq(1)').text().indexOf("ID") > 0) {
+                            valueElement = $(this).find('.profile-info-value:eq(1)');
 
-                        /*对含ID的，增加连接*/
-                        $('#baseInfo').find(".profile-info-row").each(function () {
-                            if ($(this).find('.profile-info-name:eq(0)').text().indexOf("ID") > 0) {
-                                var valueElement = $(this).find('.profile-info-value:eq(0)');
+                            valueElement.html("<a href='memberInfo.jspx?memberNo={0}'>{1}</a>".format(valueElement.text(), valueElement.text()));
+                        }
+                    });
+                    //对现金增加连接
+                    var $table = $('#aaa').find("table:contains('提现金额')");
+                    if ($table.length > 0) {
+                        var col1 = $table.find("thead tr th:contains('提现金额')").index();
+                        var col2 = $table.find("thead tr th:contains('卡号')").index();
 
-                                valueElement.html("<a href='memberInfo.jspx?memberNo={0}'>{1}</a>".format(valueElement.text(), valueElement.text()));
-                            }
-                            if ($(this).find('.profile-info-name:eq(1)').text().indexOf("ID") > 0) {
-                                valueElement = $(this).find('.profile-info-value:eq(1)');
-
-                                valueElement.html("<a href='memberInfo.jspx?memberNo={0}'>{1}</a>".format(valueElement.text(), valueElement.text()));
-                            }
+                        $table.find("tbody tr").each(function (index,element){
+                            $(element).find("td").eq(col1).html("<a href='memberWithdraw.jspx?bankcard={0}' target='_blank'>{1}</a>"
+                                .format($(element).find("td").eq(col2).text(),$(element).find("td").eq(col1).text()));
                         });
-                        //对现金增加连接
+                    }
+                    var $div = $('#aaa').find("div.profile-user-info:contains('钱包')");
+                    //console.log('div length:' + $div.length);
+                    if ($div.length > 0) {
+                        var purse_len = $div.find(".profile-info-value").length;
+                        for (var k = 0; k < purse_len; k++)
+                            if ($div.find(".profile-info-value").eq(k).text() > 0) {
+                                //console.log($div.find(".profile-info-value").eq(k).text());
+                                $div.find(".profile-info-value").eq(k).html("<a href='memberIntegral.jspx?memberNo={0}&purseName={1}' target='_blank'>{2}</a>"
+                                    .format(<c:out value="${member.memberNo}"/>,
+                                        encodeURI(encodeURI($div.find(".profile-info-name").eq(k).text())),
+                                        $div.find(".profile-info-value").eq(k).text()));
+                            }
 
                     }
-                });
+                }
+                $(".profile-info-name:contains('提现金额')").css("width", "200px");
+                $(".profile-info-name:contains('用户名')").next().addClass("bigger-150");
+                $(".profile-info-name:contains('手机号码')").next().addClass("bigger-130");
+                // });
 
             }
 
@@ -369,18 +357,15 @@
                                     </div>
 
                                     <div class="widget-body">
-                                        <div class="widget-main padding-8">
-                                            <!-- #section:pages/profile.info -->
+                                        <!-- #section:pages/profile.info -->
+                                        <div id="baseInfo">
 
-                                            <div class="profile-user-info profile-user-info-striped" id="baseInfo">
-
-                                            </div>
-                                            <!-- /section:pages/profile.info -->
                                         </div>
+                                        <!-- /section:pages/profile.info -->
                                         <div id="aaa"></div>
-                                        <div class="widget-main padding-8">
-                                            提示：点击用户ID、上级，可以查看该ID的成员信息。
-                                        </div>
+                                        <%-- <div class="widget-main padding-8">
+                                             提示：点击用户ID、上级，可以查看该ID的成员信息。
+                                         </div>--%>
                                     </div>
                                 </div>
                             </div>

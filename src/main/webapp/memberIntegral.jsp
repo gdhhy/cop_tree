@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>云之道传销查询系统 - 积分历史</title>
+    <title>积分流水 - - ${short_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- bootstrap & fontawesome -->
@@ -56,13 +56,15 @@
                 if (result.data.length > 0) {
                     //var memberInfo = JSON.parse(result.data[0].memberInfo);
                     $('#realName').text(result.data[0].realName);
+
+                    $(document).attr("title",   result.data[0].realName + ' - ' + $(document).attr("title"));//修改title值
                 }
             });
             $.getJSON("/getPurseType.jspx?memberNo=" + memberNo, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                 //console.log("length:" + result.length);
                 if (result.length > 0) {
                     $("#purseType option:gt(0)").remove();
-                    let selectedIndex = 0;
+                    var selectedIndex = 0;
                     $.each(result, function (n, value) {
                         //console.log("value:" + value.pursename);
                         $('#purseType').append('<option value="{0}" selected="selected">{1}</option>'.format(value.id, value.pursename));
@@ -98,7 +100,7 @@
                 });
             }
 
-            var url = "/memberIntegral.jspx?memberNo=" + memberNo + (pPurseName === null ? "" : "&purseName=" + pPurseName);
+            var url = "/getIntegral.jspx?memberNo=" + memberNo + (pPurseName === null ? "" : "&purseName=" + pPurseName);
             $('#purseType').change(function () {
                 var purseType = $(this).children('option:selected').val();
                 if (purseType > 0) {
@@ -151,7 +153,7 @@
                     "ajax": {
                         url: url,
                         "data": function (d) {//删除多余请求参数
-                            for (let key in d)
+                            for (var key in d)
                                 if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0)  //以columns开头的参数删除
                                     delete d[key];
                         }

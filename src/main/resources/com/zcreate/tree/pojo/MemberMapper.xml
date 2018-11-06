@@ -27,7 +27,7 @@
             <if test="param.parentNo2!=null">AND member_no in(select A.member_no from member A
                 left join member B on A.parent_no = B.member_no where B.parent_no=#{param.parentNo2:INTEGER})
             </if>
-            <if test="param.threeThirty==true">AND child_depth>=2 and (direct_count+second_count)>=30</if>
+            <if test="param.threeThirty==true">AND child_depth>=2 and (direct_count+second_count)>=29</if>
             <if test="param.bankCard!=null">AND JSON_SEARCH(member_info, 'all', '%${param.bankCard}%',null,'$.提现银行卡') IS NOT NULL
             </if>
         </where>
